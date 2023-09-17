@@ -1,45 +1,29 @@
 pipeline {
-    agent any
-    tools {
+    agent any 
+    tools{
         nodejs 'nodejs'
     }
-    parameters {
-        choice(name:'VERSION', choices:['1.0', '1.1', '1.2'], description:'Choose the version of the project')
-
-        booleanParam(name :'executeTests', description:'Execute the tests', defaultValue:false)
-    }
-
     stages {
-        stage('Build') {
+        stage('clone') { 
             steps {
-                sh 'npm install'
-                // sh 'npm run build'
+                git clone repo
             }
         }
-        stage('Test') {
+        stage('npm install') { 
             steps {
-                // sh 'npm run test'
-                echo "Test"
-
+                nodejs ('nodejs')
+                npm 'install'
+                
             }
         }
-        stage('Build Image') {
+        stage('build') { 
             steps {
-                withCredentials([usernamePassword(credentialsId: 'docker-hub-repo', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
-                    sh 'docker build -t jennykibiri/sample-react-app .'
-                    sh "echo $PASS | docker login -u $USER --password-stdin"
-                    sh 'docker push jennykibiri/sample-react-app'
-                }
+                sh 'npm run build'
             }
         }
-        stage ('Deploy') {
+        stage('docker build') { 
             steps {
-                script {
-                    def dockerCmd = 'docker run  -p 3000:3000 -d jennykibiri/sample-react-app:latest'
-                    sshagent(['ec2-server-key']) {
-                        sh "ssh -o StrictHostKeyChecking=no ec2-user@3.92.144.96 ${dockerCmd}"
-                    }
-                }
+                sh 'npm run build'
             }
         }
     }
