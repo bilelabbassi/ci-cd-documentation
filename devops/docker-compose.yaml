@@ -20,7 +20,7 @@
       networks:
         devops:
           ipv4_address:
-    volumes:
+      volumes:
       - /var/lib/docker
     restart: always
     environment:
