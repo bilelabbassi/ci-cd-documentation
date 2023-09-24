@@ -18,13 +18,10 @@
       container_name: docker
       privileged: true
       networks:
-        devops:
-          ipv4_address:
+        - devops
       volumes:
-      - /var/lib/docker
-    restart: always
-    environment:
-      - SONARQUBE_HOST=http://sonarqube:9000
+          - /var/lib/docker
+      restart: always
 
     nexus:
       image: sonatype/nexus3
@@ -72,3 +69,7 @@
     sonarqube_logs:
     postgresql:
     postgresql_data:
+
+  networks:
+    devops:
+      driver: bridge
