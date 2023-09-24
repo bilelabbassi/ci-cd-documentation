@@ -13,6 +13,19 @@
         - ~/jenkins:/var/jenkins_home
         - /var/run/docker.sock:/var/run/docker.sock
 
+    docker:
+      image: docker:dind
+      container_name: docker
+      privileged: true
+      networks:
+        devops:
+          ipv4_address:
+    volumes:
+      - /var/lib/docker
+    restart: always
+    environment:
+      - SONARQUBE_HOST=http://sonarqube:9000
+
     nexus:
       image: sonatype/nexus3
       container_name: nexus
