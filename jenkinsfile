@@ -18,21 +18,33 @@ pipeline {
             }    
             
         }
-        stage('SonarQube Analysis') {
-            steps {
-                // Execute SonarQube analysis
-                script {
-                    def scannerHome = tool name: 'SonarQube Scanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
-                    withSonarQubeEnv('sonar') {
-                        sh "${scannerHome}/bin/sonar-scanner"
-                    }
-                }
-            }
-        }
+        
         stage('build') { 
             steps {
                 sh 'npm run build'
             }
+        }
+        stage('sonrqube'){
+            agent { 
+                docker { 
+                    image 'sonarsource/sonar-scanner-cli' 
+                    args '-v /var/run/docker.sock:/var/run/docker.sock --network documentation_devops'
+                } 
+            }
+            steps{
+                   // sh 'sonar-scanner   -Dsonar.projectKey=a   -Dsonar.sources=.   -Dsonar.host.url=http://172.18.0.4:9000   -Dsonar.token=sqp_1d1cf157fdec8dcc21e9aa8bbd243e66eb444f8a'
+             
+             sh '''
+             
+              sonar-scanner \
+               -Dsonar.projectKey=test \
+               -Dsonar.sources=. \
+               -Dsonar.host.url=http://sonarqube:9000 \
+               -Dsonar.login=admin \
+               -Dsonar.password=sonar
+             '''
+                }
+            
         }
         stage('docker build') { 
             steps {
