@@ -1,19 +1,32 @@
 pipeline {
     agent any 
-    tools{
-        nodejs 'nodejs'
-    }
+    tools {
+  nodejs 'nodejs'
+    dockerTool 'dockerlatest'
+
+}
     stages {
         stage('clone') { 
             steps {
-                git clone repo
+               git branch: 'main', url: 'https://github.com/bilelabbassi/ci-cd-documentation.git'
             }
         }
         stage('npm install') { 
             steps {
-                nodejs ('nodejs')
-                npm 'install'
-                
+       
+            sh 'npm install'
+            }    
+            
+        }
+        stage('SonarQube Analysis') {
+            steps {
+                // Execute SonarQube analysis
+                script {
+                    def scannerHome = tool name: 'SonarQube Scanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+                    withSonarQubeEnv('sonar') {
+                        sh "${scannerHome}/bin/sonar-scanner"
+                    }
+                }
             }
         }
         stage('build') { 
@@ -23,8 +36,31 @@ pipeline {
         }
         stage('docker build') { 
             steps {
-                sh 'npm run build'
+                sh 'docker build -t prdoction:v1 .'
+            }
+        }
+         
+        stage('docker run') {
+            steps {
+                script {
+                    // Vérification de l'existence du conteneur "prod"
+                    def prodContainerExists = sh(script: 'docker ps -a --format "{{.Names}}" | grep -q prod', returnStatus: true)
+
+                    // Si le conteneur "prod" existe, le stopper et le supprimer
+                    if (prodContainerExists == 0) {
+                        sh 'docker stop prod'
+                        sh 'docker rm prod'
+                        
+                    } 
+                    
+                    sh 'docker run -d -p 9093:80 --name prod prdoction:v1'
+                     }
+
+                   
+                }
             }
         }
     }
-}
+
+  
+    
