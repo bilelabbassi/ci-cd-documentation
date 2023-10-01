@@ -3,8 +3,9 @@ pipeline {
     tools {
   nodejs 'nodejs'
     dockerTool 'dockerlatest'
-
 }
+
+    
     stages {
         stage('clone') { 
             steps {
@@ -28,16 +29,19 @@ pipeline {
             agent { 
                 docker { 
                     image 'sonarsource/sonar-scanner-cli' 
-                    args '-v /var/run/docker.sock:/var/run/docker.sock '
+                    args '-v /var/run/docker.sock:/var/run/docker.sock --network devops_default'
+
                 } 
             }
             steps{
+                git branch: 'main', url: 'https://github.com/bilelabbassi/ci-cd-documentation.git'
                    // sh 'sonar-scanner   -Dsonar.projectKey=a   -Dsonar.sources=.   -Dsonar.host.url=http://172.18.0.4:9000   -Dsonar.token=sqp_1d1cf157fdec8dcc21e9aa8bbd243e66eb444f8a'
              
              sh '''
+            
              
               sonar-scanner \
-               -Dsonar.projectKey=test \
+               -Dsonar.projectKey=testformatin \
                -Dsonar.sources=. \
                -Dsonar.host.url=http://sonarqube:9000 \
                -Dsonar.login=admin \
@@ -46,9 +50,10 @@ pipeline {
                 }
             
         }
+        
         stage('docker build') { 
             steps {
-                sh 'docker build -t prdoction:v1 .'
+                sh 'docker build -t production:v1 .'
             }
         }
          
@@ -71,8 +76,20 @@ pipeline {
                    
                 }
             }
+        stage('Uploading to Nexus') {
+            steps {
+                    sh 'docker login localhost:8085 -u admin -p passwordnexus'
+                    sh ' docker tag production:v1 localhost:8085/repos_nexus_formation/production:v2'
+                    sh ' docker push localhost:8085/repos_nexus_formation/production:v2'
+
+            }
         }
+        
+        
     }
+         
+}  
+        
 
   
     

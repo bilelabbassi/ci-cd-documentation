@@ -12,7 +12,8 @@
       volumes:
         - ~/jenkins:/var/jenkins_home
         - /var/run/docker.sock:/var/run/docker.sock
-
+      depends_on:
+        - docker
     docker:
       image: docker:dind
       container_name: docker
