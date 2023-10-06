@@ -1,5 +1,5 @@
 sonar-scanner \
-   -Dsonar.projectKey=documentation \
+   -Dsonar.projectKey=documentationf \
    -Dsonar.sources=./src \
    -Dsonar.host.url=http://localhost:9000 \
    -Dsonar.login=admin \
