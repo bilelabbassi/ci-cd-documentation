@@ -1,0 +1,11 @@
+😄  minikube v1.31.2 sur Ubuntu 20.04
+👎  Impossible de choisir un pilote par défaut. Voici ce qui a été considéré, par ordre de préférence :
+    ▪ docker : Not healthy: "docker version --format {{.Server.Os}}-{{.Server.Version}}:{{.Server.Platform.Name}}" exit status 1: permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Get "http://%2Fvar%2Frun%2Fdocker.sock/v1.24/version": dial unix /var/run/docker.sock: connect: permission denied
+    ▪ docker: Suggestion: Add your user to the 'docker' group: 'sudo usermod -aG docker $USER && newgrp docker' <https://docs.docker.com/engine/install/linux-postinstall/>
+💡  Vous pouvez également installer l'un de ces pilotes :
+    ▪ kvm2 : Not installed: exec: "virsh": executable file not found in $PATH
+    ▪ podman : Not installed: exec: "podman": executable file not found in $PATH
+    ▪ qemu2 : Not installed: exec: "qemu-system-x86_64": executable file not found in $PATH
+    ▪ virtualbox : Not installed: unable to find VBoxManage in $PATH
+
+
