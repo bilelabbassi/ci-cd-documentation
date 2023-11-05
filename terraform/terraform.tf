@@ -42,7 +42,7 @@ resource "azurerm_network_interface" "network_interface" {
 }
 
 resource "azurerm_linux_virtual_machine" "machinebilel" {
-  name                = "myVM"
+  name                = "VMbilel"
   location            = azurerm_resource_group.groupeazure.location
   resource_group_name = azurerm_resource_group.groupeazure.name
 
@@ -71,5 +71,5 @@ resource "azurerm_linux_virtual_machine" "machinebilel" {
 }
 
 output "public_ip" {
-  value = azurerm_public_ip.network_interface.ip_address
+  value = azurerm_public_ip.public_ip.ip_address
 }
