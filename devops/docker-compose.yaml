@@ -3,6 +3,7 @@
   services:
     jenkins:
       image: jenkins/jenkins:jdk11
+      #image: jenkinsdocker
       privileged: true
       user: root
       ports:

@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploykuber
+  labels:
+    app: deploykuber
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: deploykuber
+  template:
+    metadata:
+      labels:
+        app: deploykuber
+    spec:
+      containers:
+      - name: deploymentdevops
+        image: bilelabbass/repos_fromation:production
+        ports:
+        - containerPort: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  selector:
+    app: deploykuber
+  ports:
+    - protocol: TCP
+      port: 3002
+      targetPort: 80
+  type: NodePort

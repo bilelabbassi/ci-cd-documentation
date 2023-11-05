@@ -1,0 +1,38 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "generic/ubuntu2004"
+  
+  config.vm.network "private_network", ip: "192.168.56.10"
+  
+  config.vm.provider "virtualbox" do |vb|
+    vb.memory = "4096"
+  end
+
+  ssh_pub_key = File.readlines("#{Dir.home}/.ssh/id_rsa.pub").first.strip
+  config.vm.provision "shell" do |shell|
+    shell.inline = <<-SHELL
+      # Update package lists and install necessary packages
+      sudo apt-get update
+      sudo apt-get install -y wget build-essential curl git
+
+      # Add a new user and grant sudo privileges
+      sudo useradd -m -s /bin/bash opsuser
+      sudo usermod -aG sudo opsuser
+
+      # Set up SSH key for the new user
+      sudo mkdir -p /home/opsuser/.ssh
+      echo "#{ssh_pub_key}" | sudo tee /home/opsuser/.ssh/authorized_keys
+      sudo chown -R opsuser:opsuser /home/opsuser/.ssh
+      sudo chmod 700 /home/opsuser/.ssh
+      sudo chmod 600 /home/opsuser/.ssh/authorized_keys
+
+      # Restart SSH service to apply changes
+      sudo systemctl restart ssh
+      echo 'opsuser ALL=(ALL:ALL) NOPASSWD:ALL' | sudo tee -a /etc/sudoers.d/opsuser
+      sudo chmod 0440 /etc/sudoers.d/opsuser
+    SHELL
+  end
+
+  config.vm.define "ubuntu_vm" do |vm|
+    vm.vm.network "forwarded_port", guest: 22, host: 2222, auto_correct: true
+  end
+end
