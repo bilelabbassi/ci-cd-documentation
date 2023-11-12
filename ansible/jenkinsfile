@@ -1,0 +1,153 @@
+pipeline {
+agent any 
+    tools {
+        nodejs 'nodejs'
+        dockerTool 'dockerlatest'
+}
+
+    
+    stages {
+        stage('clone') { 
+            steps {
+               git branch: 'main', url: 'https://github.com/bilelabbassi/ci-cd-documentation.git'
+            }
+        }
+
+        stage('Build the application') { 
+            steps {
+            sh 'npm install'
+            sh 'npm run build'
+            }    
+        }
+        
+        
+        /*stage('sonrqube'){
+            agent { 
+                docker { 
+                    image 'sonarsource/sonar-scanner-cli' 
+                    args '-v /var/run/docker.sock:/var/run/docker.sock --network devops_default'
+
+                } 
+            }
+            steps{
+                git branch: 'main', url: 'https://github.com/bilelabbassi/ci-cd-documentation.git'
+                   // sh 'sonar-scanner   -Dsonar.projectKey=a   -Dsonar.sources=.   -Dsonar.host.url=http://172.18.0.4:9000   -Dsonar.token=sqp_1d1cf157fdec8dcc21e9aa8bbd243e66eb444f8a'
+             
+             sh '''
+            
+             
+              sonar-scanner \
+               -Dsonar.projectKey=documentation \
+               -Dsonar.sources=. \
+               -Dsonar.host.url=http://sonarqube:9000 \
+               -Dsonar.login=admin \
+               -Dsonar.password=sonar
+             '''
+                }
+            
+        }*/
+        
+      /*  stage('docker build') { 
+            steps {
+                sh 'docker build -t production:v1 .'
+            }
+        }
+         
+        stage('docker run') {
+            steps {
+                script {
+                    // Vérification de l'existence du conteneur "prod"
+                    def prodContainerExists = sh(script: 'docker ps -a --format "{{.Names}}" | grep -q prod', returnStatus: true)
+
+                    // Si le conteneur "prod" existe, le stopper et le supprimer
+                    if (prodContainerExists == 0) {
+                        sh 'docker stop prod'
+                        sh 'docker rm prod'
+                        
+                    } 
+                    
+                    sh 'docker run -d -p 9093:80 --name prod production:v1'
+                     }
+
+                   
+                }
+            }*/
+        stage('install docker in the ec2 instnance with ansible') {
+             agent { 
+                docker { 
+                    image 'cytopia/ansible:2.9-infra' 
+                    args '-v //var/run/docker.sock:/var/run/docker.sock --network devops_default' 
+                } 
+            }
+            steps {
+                    withCredentials([file(credentialsId: 'azkey', variable: 'key')]) {
+                        git branch: 'main', url: 'https://github.com/bilelabbassi/ci-cd-documentation.git'
+
+                        sh '''
+                        echo [server] > hosts
+                        echo 52.152.130.202 >> hosts
+                        cat hosts
+                        ls
+                        cat ${key} > go
+                        chmod 400 go
+
+                        ansible-playbook -i hosts -u azureuser --private-key go --ssh-common-args='-o StrictHostKeyChecking=no' ansible/playbook-docker.yaml
+
+                        '''
+                   }
+                    
+            }
+ 
+        }
+        
+        stage('push docker image  to Dockerhub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'creddockerhub', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                    sh 'docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD'
+                    sh ' docker tag production:v1  bilelabbass/repos_fromation:productionV03'
+                    sh ' docker push bilelabbass/repos_fromation:productionV03'
+                }
+            }
+        }
+stage('Deploy application') {
+             agent { 
+                docker { 
+                    image 'cytopia/ansible:2.9-infra' 
+                    args '-v //var/run/docker.sock:/var/run/docker.sock --network devops_default' 
+                } 
+            }
+            steps {
+                    withCredentials([file(credentialsId: 'azkey', variable: 'key')]) {
+                        git branch: 'main', url: 'https://github.com/bilelabbassi/ci-cd-documentation.git'
+
+                        sh '''
+                        echo [server] > hosts
+                        echo 52.152.130.202 >> hosts
+                        cat hosts
+                        ls
+                        cat ${key} > go
+                        chmod 400 go
+
+                        ansible-playbook -i hosts -u azureuser --private-key go --ssh-common-args='-o StrictHostKeyChecking=no' ansible/playbook-run-image-azure.yaml
+
+                        '''
+                   }
+                    
+            }
+ 
+        }
+        /*stage('Uploading to Nexus') {
+            steps {
+                    sh 'docker login localhost:8085 -u admin -p bilel'
+                    sh ' docker tag production:v1 localhost:8085/repos_nexus_formation/production:v2'
+                    sh ' docker push localhost:8085/repos_nexus_formation/production:v2'
+
+            }
+        }*/
+        
+        
+    }
+         
+}  
+        
+

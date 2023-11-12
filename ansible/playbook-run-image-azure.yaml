@@ -1,0 +1,10 @@
+---
+- name: Deploy Docker Container to Azure VM
+  hosts: server  # Replace 'azure_vm' with the hostname or IP address of your Azure VM
+  become: yes
+  tasks:
+
+    - name: Run the Docker container
+      command: docker run -d -p 80:80 bilelabbass/repos_fromation:productionV03
+      become_user: azureuser  # Replace with your Azure VM username
+      become: yes
