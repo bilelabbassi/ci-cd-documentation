@@ -39,7 +39,7 @@ pipeline {
              
              sh '''
             
-             
+        
               sonar-scanner \
                -Dsonar.projectKey=testformatin \
                -Dsonar.sources=. \
