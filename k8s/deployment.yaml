@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: deploykuber
+  name: gmcdoc
   labels:
-    app: deploykuber
+    app: gmcdoc
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: deploykuber
+      app: gmcdoc
   template:
     metadata:
       labels:
-        app: deploykuber
+        app: gmcdoc
     spec:
       containers:
       - name: deploymentdevops
@@ -27,7 +27,7 @@ metadata:
   name: my-service
 spec:
   selector:
-    app: deploykuber
+    app: gmcdoc
   ports:
     - protocol: TCP
       port: 3002
