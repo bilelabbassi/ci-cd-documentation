@@ -1,0 +1,20 @@
+name: Deploy Application
+
+on:
+  push:
+    branches:
+      - main  # Déclenche le workflow à chaque push sur main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v3
+
+      - name: Afficher un message
+        run: echo "Le workflow GitHub Actions a démarré avec succès ! 🚀"
