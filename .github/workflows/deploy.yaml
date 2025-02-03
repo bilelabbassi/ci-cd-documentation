@@ -31,4 +31,4 @@ jobs:
         run: |
           docker build -t ${{secrets.NAMEDOCKERHUB}}/$repo:$tag .
           docker push ${{secrets.NAMEDOCKERHUB}}/$repo:$tag
-        run: echo "L'image pushed  avec succès ! 🚀"
+          echo "L'image pushed  avec succès ! 🚀"
