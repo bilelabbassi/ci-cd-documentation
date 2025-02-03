@@ -18,3 +18,17 @@ jobs:
 
       - name: Afficher un message
         run: echo "Le workflow GitHub Actions a démarré avec succès ! 🚀"
+      - name: login dockerhub 
+        uses: docker/login-action@v1
+        with:
+          username: ${{secrets.NAMEDOCKERHUB}}
+          password: ${{secrets.TOKENDOCKERHUB}}
+
+      - name: build and push docker image
+        env:
+          repo: imagedocker
+          tag: githubaction
+        run: |
+          docker build -t ${{secrets.NAMEDOCKERHUB}}/$repo:$tag .
+          docker push ${{secrets.NAMEDOCKERHUB}}/$repo:$tag
+        run : run: echo "L'image pushed  avec succès ! 🚀"
